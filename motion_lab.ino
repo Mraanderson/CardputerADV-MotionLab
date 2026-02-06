@@ -136,14 +136,15 @@ void drawSplash() {
     M5.Display.print("Cardputer ADV");
 
     tw = M5.Display.textWidth("Motion Lab");
-    M5.Display.setCursor((M5.Display.width() - tw) / 2, 70);
+    M5.Display.setCursor((M5.Display.width() - tw) / 2, 60);
     M5.Display.print("Motion Lab");
 
     // Subtitle
     M5.Display.setTextSize(1);
     tw = M5.Display.textWidth("Tilt, rotate, shake — explore the IMU!");
-    M5.Display.setCursor((M5.Display.width() - tw) / 2, 110);
-    M5.Display.print("Tilt, rotate, shake — explore the IMU!");
+    M5.Display.setCursor((M5.Display.width() - tw) / 2, 100);
+    M5.Display.print("Tilt, rotate, shake — explore the IMU!\n");
+    M5.Display.print("\n v0.03");
   }
 
   // Hold for 3 seconds or exit on key press
@@ -165,13 +166,14 @@ void drawMenu() {
 
     M5.Display.fillScreen(COL_BG);
     M5.Display.setTextColor(COL_TEXT, COL_BG);
-    M5.Display.setTextSize(1);
+    M5.Display.setTextSize(2);
 
     int y = 20;
     M5.Display.setCursor(10, y);
     M5.Display.print("IMU Demo Menu");
-    y += 20;
+    y += 30;
 
+    M5.Display.setTextSize(1);
     M5.Display.setCursor(10, y);  M5.Display.print("1. 3D Cube");       y += 15;
     M5.Display.setCursor(10, y);  M5.Display.print("2. Bubble Level");  y += 15;
     M5.Display.setCursor(10, y);  M5.Display.print("3. Tilt Game");     y += 15;
