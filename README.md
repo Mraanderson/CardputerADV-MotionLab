@@ -1,59 +1,68 @@
 # Cardputer‑ADV Motion Lab
 
-A collection of interactive IMU‑driven demos for the M5Stack Cardputer‑ADV.  
-Tilt, rotate, and shake the device to explore real‑time motion visualizations, mini‑games, and diagnostic tools.
+An interactive IMU‑driven demo suite for the **M5Stack Cardputer‑ADV**, showcasing real‑time motion graphics, tilt‑based controls, and diagnostic tools.  
+This project is designed as a hands‑on playground for exploring the Cardputer‑ADV’s accelerometer and gyroscope.
 
 ---
 
 ## Features
 
-### Splash Screen
-- Centered title and subtitle  
-- Auto‑advance after 3 seconds or keypress
-
-### Menu System
-Keyboard or button navigation:
-- `1` — 3D Cube  
-- `2` — Bubble Level  
-- `3` — Tilt Game  
-- `4` — IMU Graph  
-- `5` — Raw Viewer  
-- Buttons A/B/C map to the first three demos - not sure why and they won't for long.
-
-### 3D Cube Demo
-- IMU‑controlled 3D wireframe cube  
-- Pitch/roll rotation from accelerometer  
-- Depth‑based shading  
-- Smooth ~60 FPS rendering
+### 3D Cube (IMU‑Driven, Live Zoom)
+- Real‑time pitch/roll rotation from accelerometer  
+- Depth‑based shading using rotated Z  
+- Smooth ~60 FPS rendering  
+- **Live zoom control** using `+` and `-` keys  
+- Reset zoom with `0`  
 
 ### Bubble Level
-- Circular spirit level with crosshair grid  
-- Neon bubble with natural inverted‑axis movement
+- Circular spirit level  
+- Neon bubble with natural inverted‑axis movement  
+- Auto‑scaled circle to fit the ADV screen  
 
 ### Tilt Game
 - Move a player dot by tilting the device  
 - Randomized goal target  
-- Collision detection with flash feedback
+- Collision flash effect  
+- Smooth motion and clamped boundaries  
 
 ### IMU Graph (Oscilloscope Mode)
-- Scrolling graph of accelerometer and gyroscope data  
-- Circular buffer for smooth motion  
-- Distinct color‑coded traces
+- Scrolling graph of accelerometer + gyro data  
+- Circular buffer for smooth scrolling  
+- Six color‑coded traces  
+- Great for debugging IMU noise or drift  
 
 ### Raw Data Viewer
 - Live accelerometer and gyro values  
 - Computed pitch and roll  
-- Clean text layout for diagnostics
+- Compact text layout for the ADV’s 135px height  
+
+### Unified Exit Controls
+All demos can be exited using:
+- **Button A**  
+- **ESC**  
+- **Backspace**  
+- **Delete**
+
+---
+
+## Controls
+
+| Action        | Input                          |
+|---------------|---------------------------------|
+| Exit demo     | Btn A, ESC, Backspace, Delete   |
+| Menu select   | Keys `1`–`5`                    |
+| Cube zoom     | `+` / `-` / `0`                 |
+| Tilt control  | Physical device movement        |
 
 ---
 
 ## Requirements
 
-- M5Stack Cardputer‑ADV  
-- Arduino IDE or PlatformIO  
+- M5Stack **Cardputer‑ADV**
+- Arduino IDE or PlatformIO
 - Libraries:
-  - M5Unified  
-  - M5Cardputer  
+  - `M5Unified`
+  - `M5Cardputer`
 
 ---
 
@@ -61,21 +70,11 @@ Keyboard or button navigation:
 
 1. Install Arduino IDE and ESP32 board support  
 2. Install **M5Unified** and **M5Cardputer** libraries  
-3. Open the `.ino` file  
+3. Open `motion_lab.ino`  
 4. Select the Cardputer‑ADV board profile  
-5. Flash the firmware to the device
+5. Flash the firmware
 
-Or flash the current .bin file downloaded from releases, using https://bmorcelli.github.io/Launcher/webflasher.html as the Cardputer ADV loading firmware.
-
----
-
-## Controls
-
-| Action        | Input                     |
-|---------------|----------------------------|
-| Exit demo     | Button A or ESC key        |
-| Select mode   | Keys `1`–`5`               |
-| Tilt control  | Physical device movement   |
+Or flash the .bin file
 
 ---
 
@@ -85,7 +84,7 @@ Or flash the current .bin file downloaded from releases, using https://bmorcelli
 |--------|------------------------------------|
 | Splash | Intro screen                       |
 | Menu   | Mode selector                      |
-| Cube   | IMU‑rotated 3D cube                |
+| Cube   | IMU‑rotated 3D cube + live zoom    |
 | Level  | Bubble level                       |
 | Game   | Tilt‑controlled mini‑game          |
 | Graph  | Scrolling IMU oscilloscope         |
@@ -93,15 +92,13 @@ Or flash the current .bin file downloaded from releases, using https://bmorcelli
 
 ---
 
-## Known Issues / To‑Fix List
+## Known Issues / Future Improvements
 
-- Reset required to exit running test/demo
-- Occasional flicker when switching modes  
-- Cube shading uses static Z instead of rotated Z  
-- Graph scaling could be adaptive  
-- Menu could use a highlight cursor  
-- Keyboard polling may miss rapid keypresses  
-- Exiting demos is immediate; could use a confirmation overlay  
+- Menu could benefit from a highlight cursor  
+- IMU graph scaling could be adaptive  
+- Cube could optionally support yaw via gyro  
+- Add optional smoothing filters (Kalman / complementary)  
+- Add more demos (compass, horizon, 3D ball, etc.)  
 
 ---
 
