@@ -7,7 +7,6 @@
 #include <cmath>
 #include <M5Cardputer.h>
 
-
 // Projected 2D point
 struct P2 {
   int x, y;
@@ -17,6 +16,7 @@ struct P2 {
 struct P3 {
   float x, y, z;
 };
+
 // -------------------------------
 //  Colour Theme (Menu + Splash)
 // -------------------------------
@@ -47,6 +47,11 @@ float gx, gy, gz;
 float pitch, roll, yaw;
 
 // -------------------------------
+//  Cube zoom (live adjustable)
+// -------------------------------
+float zoomScale = 90.0f;   // initial cube size (bigger than 60)
+
+// -------------------------------
 //  Forward Declarations
 // -------------------------------
 void drawSplash();
@@ -58,12 +63,23 @@ void demoGraph();
 void demoRaw();
 
 // ================================================================
+//  Utility: unified exit key handling
+// ================================================================
+bool exitRequested() {
+  // BtnA, ESC (0x29), Backspace (0x2A), Delete (0x4C)
+  return M5.BtnA.wasPressed() ||
+         M5Cardputer.Keyboard.isKeyPressed(0x29) ||
+         M5Cardputer.Keyboard.isKeyPressed(0x2A) ||
+         M5Cardputer.Keyboard.isKeyPressed(0x4C);
+}
+
+// ================================================================
 //  Setup
 // ================================================================
 void setup() {
   auto cfg = M5.config();
   M5.begin(cfg);
-  
+
   M5Cardputer.begin();
 
   M5.Display.setRotation(1);
@@ -89,15 +105,16 @@ void loop() {
   M5Cardputer.update();
 
   switch (currentMode) {
-    case MODE_SPLASH: drawSplash(); break;
-    case MODE_MENU:   drawMenu();   break;
-    case MODE_CUBE:   demoCube();   break;
-    case MODE_LEVEL:  demoLevel();  break;
+    case MODE_SPLASH: drawSplash();   break;
+    case MODE_MENU:   drawMenu();     break;
+    case MODE_CUBE:   demoCube();     break;
+    case MODE_LEVEL:  demoLevel();    break;
     case MODE_GAME:   demoTiltGame(); break;
-    case MODE_GRAPH:  demoGraph();  break;
-    case MODE_RAW:    demoRaw();    break;
+    case MODE_GRAPH:  demoGraph();    break;
+    case MODE_RAW:    demoRaw();      break;
   }
 }
+
 // ================================================================
 //  Splash Screen (Large Title + Smaller Subtitle)
 // ================================================================
@@ -130,7 +147,8 @@ void drawSplash() {
   }
 
   // Hold for 3 seconds or exit on key press
-  if (millis() - startTime > 3000 || M5.BtnA.wasPressed() || M5.BtnB.wasPressed() || M5.BtnC.wasPressed()) {
+  if (millis() - startTime > 3000 ||
+      M5.BtnA.wasPressed() || M5.BtnB.wasPressed() || M5.BtnC.wasPressed()) {
     currentMode = MODE_MENU;
     M5.Display.fillScreen(COL_BG);
   }
@@ -154,10 +172,10 @@ void drawMenu() {
     M5.Display.print("IMU Demo Menu");
     y += 20;
 
-    M5.Display.setCursor(10, y);  M5.Display.print("1. 3D Cube"); y += 15;
-    M5.Display.setCursor(10, y);  M5.Display.print("2. Bubble Level"); y += 15;
-    M5.Display.setCursor(10, y);  M5.Display.print("3. Tilt Game"); y += 15;
-    M5.Display.setCursor(10, y);  M5.Display.print("4. IMU Graph"); y += 15;
+    M5.Display.setCursor(10, y);  M5.Display.print("1. 3D Cube");       y += 15;
+    M5.Display.setCursor(10, y);  M5.Display.print("2. Bubble Level");  y += 15;
+    M5.Display.setCursor(10, y);  M5.Display.print("3. Tilt Game");     y += 15;
+    M5.Display.setCursor(10, y);  M5.Display.print("4. IMU Graph");     y += 15;
     M5.Display.setCursor(10, y);  M5.Display.print("5. Raw Viewer");
   }
 
@@ -180,8 +198,6 @@ void drawMenu() {
 //  3D Cube Demo (Shaded, IMU‑Driven)
 // ================================================================
 
-
-
 // Cube vertices
 P3 cubeVerts[8] = {
   {-1, -1, -1},
@@ -201,14 +217,14 @@ int cubeEdges[12][2] = {
   {0,4},{1,5},{2,6},{3,7}
 };
 
-// Simple projection
+// Simple projection (uses live zoomScale)
 P2 projectPoint(P3 p) {
-  float scale = 60.0f;
+  float scale   = zoomScale;
   float zOffset = 4.0f;
-  float inv = 1.0f / (p.z + zOffset);
+  float inv     = 1.0f / (p.z + zOffset);
 
   return {
-    (int)(p.x * scale * inv + M5.Display.width() / 2),
+    (int)(p.x * scale * inv + M5.Display.width()  / 2),
     (int)(p.y * scale * inv + M5.Display.height() / 2)
   };
 }
@@ -238,21 +254,36 @@ void demoCube() {
   M5.update();
 
   // Exit back to menu
-  if (M5.BtnA.wasPressed() || M5Cardputer.Keyboard.isKeyPressed(0x29)) { // ESC
+  if (exitRequested()) {
     currentMode = MODE_MENU;
     M5.Display.fillScreen(COL_BG);
     return;
   }
 
+  // Zoom controls (+ / - / 0)
+  if (M5Cardputer.Keyboard.isKeyPressed('+') ||
+      M5Cardputer.Keyboard.isKeyPressed('=')) {   // '=' often shares key with '+'
+    zoomScale += 2.0f;
+    if (zoomScale > 140.0f) zoomScale = 140.0f;
+  }
+
+  if (M5Cardputer.Keyboard.isKeyPressed('-') ||
+      M5Cardputer.Keyboard.isKeyPressed('_')) {
+    zoomScale -= 2.0f;
+    if (zoomScale < 20.0f) zoomScale = 20.0f;
+  }
+
+  if (M5Cardputer.Keyboard.isKeyPressed('0')) {
+    zoomScale = 90.0f;  // reset to default
+  }
+
   // Read IMU
-   M5.Imu.getAccel(&ax, &ay, &az);
+  M5.Imu.getAccel(&ax, &ay, &az);
 
   // Compute tilt angles from accelerometer
-   pitch = atan2(ay, az) * 57.2958;
-   roll  = atan2(-ax, sqrt(ay*ay + az*az)) * 57.2958;
-   yaw   = 0;
-
-
+  pitch = atan2(ay, az) * 57.2958f;
+  roll  = atan2(-ax, sqrtf(ay*ay + az*az)) * 57.2958f;
+  yaw   = 0;
 
   // Convert degrees → radians
   float p = pitch * 0.0174533f;
@@ -264,37 +295,38 @@ void demoCube() {
 
   // Rotate + project all vertices
   P2 pts[8];
+  P3 rpVerts[8];
   for (int i = 0; i < 8; i++) {
-    P3 rp = rotatePoint(cubeVerts[i], p, r, y);
-    pts[i] = projectPoint(rp);
+    rpVerts[i] = rotatePoint(cubeVerts[i], p, r, y);
+    pts[i]     = projectPoint(rpVerts[i]);
   }
 
-  // Draw shaded edges
+  // Draw shaded edges (based on rotated Z)
   for (int i = 0; i < 12; i++) {
     int a = cubeEdges[i][0];
     int b = cubeEdges[i][1];
 
-    // Simple shading based on Z depth
-    float shade = (cubeVerts[a].z + cubeVerts[b].z + 2.0f) * 0.25f;
+    float shade = (rpVerts[a].z + rpVerts[b].z + 2.0f) * 0.25f;
     shade = constrain(shade, 0.2f, 1.0f);
 
-    uint8_t intensity = (uint8_t)(shade * 255);
-    uint16_t col = M5.Display.color565(0, intensity, intensity); // cyan-ish shading
+    uint8_t  intensity = (uint8_t)(shade * 255);
+    uint16_t col       = M5.Display.color565(0, intensity, intensity); // cyan-ish shading
 
     M5.Display.drawLine(pts[a].x, pts[a].y, pts[b].x, pts[b].y, col);
   }
 
   delay(16); // ~60 FPS
 }
+
+
 // ================================================================
 //  Bubble Level Demo
 // ================================================================
-
 void demoLevel() {
   M5.update();
 
   // Exit back to menu
-  if (M5.BtnA.wasPressed() || M5Cardputer.Keyboard.isKeyPressed(0x29)) {
+  if (exitRequested()) {
     currentMode = MODE_MENU;
     M5.Display.fillScreen(COL_BG);
     return;
@@ -304,7 +336,7 @@ void demoLevel() {
   M5.Imu.getAccel(&ax, &ay, &az);
 
   // Screen center
-  int cx = M5.Display.width() / 2;
+  int cx = M5.Display.width()  / 2;
   int cy = M5.Display.height() / 2;
 
   // Bubble movement scaling
@@ -315,18 +347,20 @@ void demoLevel() {
   int by = cy + (int)(-ay * scale);
 
   // Clamp bubble to screen
-  bx = constrain(bx, 10, M5.Display.width() - 10);
+  bx = constrain(bx, 10, M5.Display.width()  - 10);
   by = constrain(by, 10, M5.Display.height() - 10);
 
   // Draw background
   M5.Display.fillScreen(BLACK);
 
   // Draw grid
-  M5.Display.drawLine(cx, 0, cx, M5.Display.height(), M5.Display.color565(0, 180, 255));
-  M5.Display.drawLine(0, cy, M5.Display.width(), cy, M5.Display.color565(0, 180, 255));
+  uint16_t gridCol = M5.Display.color565(0, 180, 255);
+  M5.Display.drawLine(cx, 0, cx, M5.Display.height(), gridCol);
+  M5.Display.drawLine(0, cy, M5.Display.width(), cy, gridCol);
 
-  // Outer circle
-  M5.Display.drawCircle(cx, cy, 90, M5.Display.color565(0, 180, 255));
+  // Outer circle (fit to screen)
+  int radius = min(cx, cy) - 5;
+  M5.Display.drawCircle(cx, cy, radius, gridCol);
 
   // Bubble (neon yellow)
   uint16_t bubbleCol = M5.Display.color565(255, 255, 0);
@@ -334,17 +368,19 @@ void demoLevel() {
 
   delay(16); // ~60 FPS
 }
+
 // ================================================================
 //  Tilt Game Demo
 // ================================================================
-
 void demoTiltGame() {
   M5.update();
 
   // Exit back to menu
-  if (M5.BtnA.wasPressed() || M5Cardputer.Keyboard.isKeyPressed(0x29)) {
+  static bool firstRun = true;
+  if (exitRequested()) {
     currentMode = MODE_MENU;
     M5.Display.fillScreen(COL_BG);
+    firstRun = true;
     return;
   }
 
@@ -356,8 +392,14 @@ void demoTiltGame() {
   int h = M5.Display.height();
 
   // Player position (static so it persists frame-to-frame)
-  static float px = w / 2;
-  static float py = h / 2;
+  static float px;
+  static float py;
+
+  if (firstRun) {
+    px = w / 2.0f;
+    py = h / 2.0f;
+    firstRun = false;
+  }
 
   // Sensitivity
   float speed = 4.0f;
@@ -367,10 +409,10 @@ void demoTiltGame() {
   py += -ay * speed;
 
   // Clamp to screen
-  if (px < 10) px = 10;
-  if (px > w - 10) px = w - 10;
-  if (py < 10) py = 10;
-  if (py > h - 10) py = h - 10;
+  if (px < 10)      px = 10;
+  if (px > w - 10)  px = w - 10;
+  if (py < 10)      py = 10;
+  if (py > h - 10)  py = h - 10;
 
   // Draw background
   M5.Display.fillScreen(BLACK);
@@ -384,8 +426,15 @@ void demoTiltGame() {
   M5.Display.fillCircle((int)px, (int)py, 8, playerCol);
 
   // Optional: small goal target
-  static int gx = w / 4;
-  static int gy = h / 3;
+  static int gx;
+  static int gy;
+  static bool goalInit = false;
+  if (!goalInit) {
+    gx = w / 4;
+    gy = h / 3;
+    goalInit = true;
+  }
+
   uint16_t goalCol = M5.Display.color565(0, 255, 0);
   M5.Display.fillCircle(gx, gy, 6, goalCol);
 
@@ -404,6 +453,7 @@ void demoTiltGame() {
 
   delay(16); // ~60 FPS
 }
+
 // ================================================================
 //  IMU Graph Demo (Scrolling Oscilloscope)
 // ================================================================
@@ -428,7 +478,7 @@ void demoGraph() {
   M5.update();
 
   // Exit back to menu
-  if (M5.BtnA.wasPressed() || M5Cardputer.Keyboard.isKeyPressed(0x29)) {
+  if (exitRequested()) {
     currentMode = MODE_MENU;
     M5.Display.fillScreen(COL_BG);
     return;
@@ -458,23 +508,22 @@ void demoGraph() {
 
   // Draw traces
   for (int i = 0; i < GRAPH_W - 1; i++) {
-    int idx1 = (graphIndex + i) % GRAPH_W;
+    int idx1 = (graphIndex + i)     % GRAPH_W;
     int idx2 = (graphIndex + i + 1) % GRAPH_W;
 
-    // Map values to screen height
     auto mapY = [&](float v) {
       return (int)(GRAPH_H / 2 - v * 20.0f);
     };
 
     // Accel colours
-    uint16_t colAx = M5.Display.color565(255, 0, 0);     // red
-    uint16_t colAy = M5.Display.color565(0, 255, 0);     // green
-    uint16_t colAz = M5.Display.color565(0, 128, 255);   // blue
+    uint16_t colAx = M5.Display.color565(255, 0,   0);   // red
+    uint16_t colAy = M5.Display.color565(0,   255, 0);   // green
+    uint16_t colAz = M5.Display.color565(0,   128, 255); // blue
 
     // Gyro colours
     uint16_t colGx = M5.Display.color565(255, 255, 0);   // yellow
-    uint16_t colGy = M5.Display.color565(255, 0, 255);   // magenta
-    uint16_t colGz = M5.Display.color565(0, 255, 255);   // cyan
+    uint16_t colGy = M5.Display.color565(255, 0,   255); // magenta
+    uint16_t colGz = M5.Display.color565(0,   255, 255); // cyan
 
     // Draw accel
     M5.Display.drawLine(i, mapY(bufAx[idx1]), i + 1, mapY(bufAx[idx2]), colAx);
@@ -489,15 +538,15 @@ void demoGraph() {
 
   delay(16); // ~60 FPS
 }
+
 // ================================================================
 //  Raw Data Viewer
 // ================================================================
-
 void demoRaw() {
   M5.update();
 
   // Exit back to menu
-  if (M5.BtnA.wasPressed() || M5Cardputer.Keyboard.isKeyPressed(0x29)) {
+  if (exitRequested()) {
     currentMode = MODE_MENU;
     M5.Display.fillScreen(COL_BG);
     return;
@@ -508,66 +557,55 @@ void demoRaw() {
   M5.Imu.getGyro(&gx, &gy, &gz);
 
   // Compute tilt angles from accelerometer
-  pitch = atan2(ay, az) * 57.2958;
-  roll  = atan2(-ax, sqrt(ay*ay + az*az)) * 57.2958;
+  pitch = atan2(ay, az) * 57.2958f;
+  roll  = atan2(-ax, sqrtf(ay*ay + az*az)) * 57.2958f;
   yaw   = 0;
 
   // Clear screen
   M5.Display.fillScreen(COL_BG);
   M5.Display.setTextColor(COL_TEXT, COL_BG);
-  M5.Display.setTextSize(2);
+  M5.Display.setTextSize(1);  // smaller to fit all lines
 
   int y = 5;
 
   M5.Display.setCursor(5, y);
   M5.Display.print("Raw IMU Data");
-  y += 25;
+  y += 15;
 
   // Accelerometer
   M5.Display.setCursor(5, y);
-  M5.Display.printf("Accel X: %.2f", ax); y += 20;
+  M5.Display.printf("Accel X: %.2f", ax); y += 12;
   M5.Display.setCursor(5, y);
-  M5.Display.printf("Accel Y: %.2f", ay); y += 20;
+  M5.Display.printf("Accel Y: %.2f", ay); y += 12;
   M5.Display.setCursor(5, y);
-  M5.Display.printf("Accel Z: %.2f", az); y += 30;
+  M5.Display.printf("Accel Z: %.2f", az); y += 18;
 
   // Gyroscope
   M5.Display.setCursor(5, y);
-  M5.Display.printf("Gyro X: %.2f", gx); y += 20;
+  M5.Display.printf("Gyro X: %.2f", gx); y += 12;
   M5.Display.setCursor(5, y);
-  M5.Display.printf("Gyro Y: %.2f", gy); y += 20;
+  M5.Display.printf("Gyro Y: %.2f", gy); y += 12;
   M5.Display.setCursor(5, y);
-  M5.Display.printf("Gyro Z: %.2f", gz); y += 30;
+  M5.Display.printf("Gyro Z: %.2f", gz); y += 18;
 
   // Orientation
   M5.Display.setCursor(5, y);
-  M5.Display.printf("Pitch: %.2f", pitch); y += 20;
+  M5.Display.printf("Pitch: %.2f", pitch); y += 12;
   M5.Display.setCursor(5, y);
-  M5.Display.printf("Roll:  %.2f", roll); y += 20;
+  M5.Display.printf("Roll:  %.2f", roll);  y += 12;
   M5.Display.setCursor(5, y);
   M5.Display.printf("Yaw:   %.2f", yaw);
 
   delay(50); // readable refresh rate
 }
-// ================================================================
-//  CHUNK 8 — Final Glue & Safety
-//  Ensures all demos return cleanly and the app stays stable.
-// ================================================================
 
-// Utility: Clear screen and reset text formatting
+// ================================================================
+//  Utility: Clear screen and reset text formatting
+// ================================================================
 void resetScreen() {
   M5.Display.fillScreen(COL_BG);
   M5.Display.setTextColor(COL_TEXT, COL_BG);
   M5.Display.setTextSize(2);
 }
 
-// Safety: Fallback empty loop bodies for any missing demos
-// (These should never run because all demos are implemented.)
-void demoCube()      __attribute__((weak));
-void demoLevel()     __attribute__((weak));
-void demoTiltGame()  __attribute__((weak));
-void demoGraph()     __attribute__((weak));
-void demoRaw()       __attribute__((weak));
-
-
-// End of file marker (optional but tidy)
+// End of file
