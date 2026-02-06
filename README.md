@@ -18,7 +18,7 @@ Keyboard or button navigation:
 - `3` — Tilt Game  
 - `4` — IMU Graph  
 - `5` — Raw Viewer  
-- Buttons A/B/C map to the first three demos
+- Buttons A/B/C map to the first three demos - not sure why and they won't for long.
 
 ### 3D Cube Demo
 - IMU‑controlled 3D wireframe cube  
@@ -47,18 +47,6 @@ Keyboard or button navigation:
 
 ---
 
-## Project Structure
-
-Cardputer-ADV-Motion-Lab/
-│
-├── MotionLab.ino                # Main firmware
-├── README.md                        # Project documentation
-└── assets/              # (Optional) screenshots, diagrams
-
-Code
-
----
-
 ## Requirements
 
 - M5Stack Cardputer‑ADV  
@@ -76,6 +64,8 @@ Code
 3. Open the `.ino` file  
 4. Select the Cardputer‑ADV board profile  
 5. Flash the firmware to the device
+
+Or flash the current .bin file downloaded from releases, using https://bmorcelli.github.io/Launcher/webflasher.html as the Cardputer ADV loading firmware.
 
 ---
 
@@ -105,23 +95,13 @@ Code
 
 ## Known Issues / To‑Fix List
 
+- Reset required to exit running test/demo
 - Occasional flicker when switching modes  
 - Cube shading uses static Z instead of rotated Z  
 - Graph scaling could be adaptive  
 - Menu could use a highlight cursor  
 - Keyboard polling may miss rapid keypresses  
 - Exiting demos is immediate; could use a confirmation overlay  
-
----
-
-## Contributing
-
-Pull requests are welcome.  
-Areas especially open for improvement:
-- IMU filtering (Kalman, complementary filter)  
-- UI polish and animations  
-- Additional motion demos  
-- Performance optimizations  
 
 ---
 
