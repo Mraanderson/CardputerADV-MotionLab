@@ -40,7 +40,7 @@ This project is designed as a handsâ€‘on playground for exploring the Cardputerâ
 All demos can be exited using: 
 - **Del**
 
-![Screen Image](https://github.com/Mraanderson/CardputerADV-MotionLab/blob/main/docs/ArduinoIDE/gforce.jpg)
+![Screen Image](https://github.com/Mraanderson/CardputerADV-MotionLab/blob/main/docs/ArduinoIDE/gforce.png)
 ---
 
 ## Controls
