@@ -68,13 +68,15 @@ All demos can be exited using:
 
 ## Getting Started
 
-1. Install Arduino IDE and ESP32 board support  
-2. Install **M5Unified** and **M5Cardputer** libraries  
-3. Open `motion_lab.ino`  
-4. Select the Cardputer‑ADV board profile  
-5. Flash the firmware
+1. Install Visual Code Studio and the PlatformIO extension
+2. Create a new PlatformIO project
+3. Select the **M5stack StampS3** as the board
+4. Copy the .ini and src/main.cpp contents over the template files
+5. Connect Cardputer ADV by USB Data cable
+6. Hold down **Go** and reset to put into flashing mode
+7. Upload and optionally Build, to use your own firmware.bin file
 
-Or flash the .bin file
+Or flash the .bin file from releases - Web flasher coming soon...
 
 ---
 
@@ -104,4 +106,4 @@ Or flash the .bin file
 
 ## License
 
-MIT License (recommended, but choose what fits your project).
+MIT License
