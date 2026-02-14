@@ -9,7 +9,6 @@ This project is designed as a hands‑on playground for exploring the Cardputer�
 
 ### 3D Cube (IMU‑Driven, Live Zoom)
 - Real‑time pitch/roll rotation from accelerometer  
-- Depth‑based shading using rotated Z  
 - Smooth ~60 FPS rendering  
 - **Live zoom control** using `+` and `-` keys  
 - Reset zoom with `0`  
@@ -22,7 +21,8 @@ This project is designed as a hands‑on playground for exploring the Cardputer�
 ### Tilt Game
 - Move a player dot by tilting the device  
 - Randomized goal target  
-- Collision flash effect  
+- Collision flash effect
+- Alternating control styles
 - Smooth motion and clamped boundaries  
 
 ### IMU Graph (Oscilloscope Mode)
@@ -37,12 +37,10 @@ This project is designed as a hands‑on playground for exploring the Cardputer�
 - Compact text layout for the ADV’s 135px height  
 
 ### Unified Exit Controls
-All demos can be exited using:
-- **Button A**  
-- **ESC**  
-- **Backspace**  
-- **Delete**
+All demos can be exited using: 
+- **Del**
 
+![Screen Image](https://github.com/Mraanderson/CardputerADV-MotionLab/blob/main/docs/ArduinoIDE/gforce.jpg)
 ---
 
 ## Controls
@@ -84,11 +82,10 @@ Or flash the .bin file from releases - Web flasher coming soon...
 
 | Mode   | Description                        |
 |--------|------------------------------------|
-| Splash | Intro screen                       |
-| Menu   | Mode selector                      |
 | Cube   | IMU‑rotated 3D cube + live zoom    |
 | Level  | Bubble level                       |
 | Game   | Tilt‑controlled mini‑game          |
+| G-Force  | G-Force measure and peak test         |
 | Graph  | Scrolling IMU oscilloscope         |
 | Raw    | Raw IMU + orientation values       |
 
