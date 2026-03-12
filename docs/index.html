@@ -70,9 +70,6 @@
 <h1>MOTION LAB WEB FLASHER</h1>
 
 <div class="panel">
-    <p>Select firmware:</p>
-    <select id="firmwareSelect"></select>
-
     <button id="flashBtn">Flash Device</button>
 </div>
 
@@ -86,30 +83,38 @@ async function flash() {
         document.getElementById("log").textContent += msg + "\n";
     };
 
-    log("Loading manifest...");
-    const manifest = await fetch("manifest.json").then(r => r.json());
-    const build = manifest.builds[0];
+    try {
+        log("Loading manifest...");
+        const manifest = await fetch("manifest.json").then(r => r.json());
+        const build = manifest.builds[0];
 
-    log("Requesting serial port...");
-    const port = await navigator.serial.requestPort();
+        log("Requesting serial port...");
+        const port = await navigator.serial.requestPort();
 
-    const loader = new ESPLoader(port, { log });
+        const loader = new ESPLoader(port, { log });
 
-    log("Connecting...");
-    await loader.connect();
+        log("Connecting...");
+        await loader.connect();
 
-    log("Connected. Flashing parts...");
+        log("Connected. Flashing parts...");
 
-    for (const part of build.parts) {
-        log(`Flashing ${part.path} @ 0x${part.offset.toString(16)}`);
-        const data = await fetch(part.path).then(r => r.arrayBuffer());
-        await loader.flashData(new Uint8Array(data), part.offset);
+        for (const part of build.parts) {
+            log(`Flashing ${part.path} @ 0x${part.offset.toString(16)}`);
+            const data = await fetch(part.path).then(r => r.arrayBuffer());
+            await loader.flashData(new Uint8Array(data), part.offset);
+        }
+
+        log("Done. Rebooting...");
+        await loader.disconnect();
+        log("Complete.");
+    } catch (err) {
+        log("ERROR: " + err);
     }
-
-    log("Done. Rebooting...");
-    await loader.disconnect();
-    log("Complete.");
 }
+
+document.getElementById("flashBtn").addEventListener("click", flash);
+</script>
+
 
 document.getElementById("flashBtn").addEventListener("click", flash);
 </script>
