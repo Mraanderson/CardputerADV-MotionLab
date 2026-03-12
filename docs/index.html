@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Matrix Web Flasher</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        background: #000;
+        color: #00ff66;
+        font-family: "Courier New", monospace;
+        text-align: center;
+        padding: 40px;
+    }
+
+    h1 {
+        font-size: 2.2rem;
+        text-shadow: 0 0 10px #00ff66;
+    }
+
+    .panel {
+        border: 1px solid #00ff66;
+        padding: 20px;
+        margin: 20px auto;
+        width: 90%;
+        max-width: 500px;
+        background: rgba(0, 20, 0, 0.6);
+        box-shadow: 0 0 15px #00ff66;
+    }
+
+    button {
+        background: #000;
+        color: #00ff66;
+        border: 1px solid #00ff66;
+        padding: 12px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 10px;
+        text-shadow: 0 0 5px #00ff66;
+    }
+
+    button:hover {
+        background: #003300;
+    }
+
+    select {
+        background: #000;
+        color: #00ff66;
+        border: 1px solid #00ff66;
+        padding: 10px;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    #log {
+        margin-top: 20px;
+        font-size: 0.9rem;
+        white-space: pre-wrap;
+        text-align: left;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>MOTION LAB WEB FLASHER</h1>
+
+<div class="panel">
+    <p>Select firmware:</p>
+    <select id="firmwareSelect"></select>
+
+    <button id="flashBtn">Flash Device</button>
+</div>
+
+<div id="log"></div>
+
+<script>
+async function loadManifest() {
+    const res = await fetch("manifest.json");
+    const manifest = await res.json();
+
+    const select = document.getElementById("firmwareSelect");
+    manifest.firmware.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item.path;
+        opt.textContent = item.name;
+        select.appendChild(opt);
+    });
+}
+
+async function flashFirmware() {
+    const log = msg => {
+        document.getElementById("log").textContent += msg + "\n";
+    };
+
+    try {
+        log("Requesting serial port...");
+        const port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 115200 });
+
+        log("Port opened.");
+
+        const writer = port.writable.getWriter();
+        const fwPath = document.getElementById("firmwareSelect").value;
+
+        log("Fetching firmware: " + fwPath);
+        const fw = await fetch(fwPath).then(r => r.arrayBuffer());
+
+        log("Writing firmware...");
+        await writer.write(new Uint8Array(fw));
+
+        log("Flashing complete.");
+        writer.releaseLock();
+        await port.close();
+        log("Port closed.");
+    } catch (err) {
+        log("ERROR: " + err);
+    }
+}
+
+document.getElementById("flashBtn").addEventListener("click", flashFirmware);
+loadManifest();
+</script>
+
+</body>
+</html>
