@@ -4,7 +4,7 @@
     "firmware": [
         {
             "name": "CardputerADV – Main Firmware",
-            "path": "docs/firmware.bin"
+            "path": "firmware.bin"
         }
     ]
 }
