@@ -72,7 +72,7 @@ async function flash() {
         await loader.disconnect();
         log("Complete.");
     } catch (err) {
-        log("ERROR: " + err);
+        document.getElementById("log").textContent += "ERROR: " + err + "\n";
     }
 }
 
