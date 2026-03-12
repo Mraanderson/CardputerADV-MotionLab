@@ -3,7 +3,7 @@
     "version": "1.0",
     "firmware": [
         {
-            "name": "CardputerADV – Main Firmware",
+            "name": "CardputerADV – Main Firmware v0.06",
             "path": "firmware.bin"
         }
     ]
