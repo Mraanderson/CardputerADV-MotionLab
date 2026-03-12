@@ -1,0 +1,10 @@
+{
+    "name": "Motion Lab Web Flasher",
+    "version": "1.0",
+    "firmware": [
+        {
+            "name": "CardputerADV – Main Firmware",
+            "path": "docs/firmware.bin"
+        }
+    ]
+}
