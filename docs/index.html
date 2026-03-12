@@ -78,49 +78,42 @@
 
 <div id="log"></div>
 
-<script>
-async function loadManifest() {
-    const res = await fetch("manifest.json");
-    const manifest = await res.json();
+<script type="module">
+import { ESPLoader } from "https://unpkg.com/esp-web-flasher/dist/web/index.js";
 
-    const select = document.getElementById("firmwareSelect");
-    manifest.firmware.forEach(item => {
-        const opt = document.createElement("option");
-        opt.value = item.path;
-        opt.textContent = item.name;
-        select.appendChild(opt);
-    });
-}
-
-async function flashFirmware() {
+async function flash() {
     const log = msg => {
         document.getElementById("log").textContent += msg + "\n";
     };
 
-    try {
-        log("Requesting serial port...");
-        const port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 115200 });
+    log("Loading manifest...");
+    const manifest = await fetch("manifest.json").then(r => r.json());
+    const build = manifest.builds[0];
 
-        log("Port opened.");
+    log("Requesting serial port...");
+    const port = await navigator.serial.requestPort();
 
-        const writer = port.writable.getWriter();
-        const fwPath = document.getElementById("firmwareSelect").value;
+    const loader = new ESPLoader(port, { log });
 
-        log("Fetching firmware: " + fwPath);
-        const fw = await fetch(fwPath).then(r => r.arrayBuffer());
+    log("Connecting...");
+    await loader.connect();
 
-        log("Writing firmware...");
-        await writer.write(new Uint8Array(fw));
+    log("Connected. Flashing parts...");
 
-        log("Flashing complete.");
-        writer.releaseLock();
-        await port.close();
-        log("Port closed.");
-    } catch (err) {
-        log("ERROR: " + err);
+    for (const part of build.parts) {
+        log(`Flashing ${part.path} @ 0x${part.offset.toString(16)}`);
+        const data = await fetch(part.path).then(r => r.arrayBuffer());
+        await loader.flashData(new Uint8Array(data), part.offset);
     }
+
+    log("Done. Rebooting...");
+    await loader.disconnect();
+    log("Complete.");
 }
+
+document.getElementById("flashBtn").addEventListener("click", flash);
+</script>
+
 
 document.getElementById("flashBtn").addEventListener("click", flashFirmware);
 loadManifest();
