@@ -76,7 +76,7 @@
 <div id="log"></div>
 
 <script type="module">
-import { ESPLoader } from "https://unpkg.com/esp-web-flasher/dist/web/index.js";
+import ESPLoader from "https://unpkg.com/esptool-js@0.5.4/bundle.js";
 
 async function flash() {
     const log = msg => {
@@ -114,6 +114,7 @@ async function flash() {
 
 document.getElementById("flashBtn").addEventListener("click", flash);
 </script>
+
 
 
 </body>
