@@ -4,54 +4,30 @@
 <meta charset="UTF-8">
 <title>Motion Lab Web Flasher</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
     body {
         background: #000;
         color: #00ff66;
-        font-family: "Courier New", monospace;
+        font-family: monospace;
         text-align: center;
         padding: 40px;
     }
-
-    h1 {
-        font-size: 2.2rem;
-        text-shadow: 0 0 10px #00ff66;
-    }
-
-    .panel {
-        border: 1px solid #00ff66;
-        padding: 20px;
-        margin: 20px auto;
-        width: 90%;
-        max-width: 500px;
-        background: rgba(0, 20, 0, 0.6);
-        box-shadow: 0 0 15px #00ff66;
-    }
-
     button {
         background: #000;
         color: #00ff66;
         border: 1px solid #00ff66;
         padding: 12px 20px;
-        font-size: 1rem;
         cursor: pointer;
-        margin-top: 10px;
-        text-shadow: 0 0 5px #00ff66;
+        font-size: 1rem;
     }
-
-    button:hover {
-        background: #003300;
-    }
-
     #log {
         margin-top: 20px;
-        font-size: 0.9rem;
         white-space: pre-wrap;
         text-align: left;
         max-width: 500px;
         margin-left: auto;
         margin-right: auto;
+        font-size: 0.9rem;
     }
 </style>
 </head>
@@ -60,13 +36,48 @@
 
 <h1>MOTION LAB WEB FLASHER</h1>
 
-<div class="panel">
-    <button id="flashBtn">Flash Device</button>
-</div>
+<button id="flashBtn">Flash Device</button>
 
 <div id="log"></div>
 
-<script type="module" src="flasher.js"></script>
+<script type="module">
+import ESPLoader from "https://unpkg.com/esptool-js@0.5.4/bundle.js";
+
+async function flash() {
+    const log = msg => {
+        document.getElementById("log").textContent += msg + "\n";
+    };
+
+    try {
+        log("Loading manifest...");
+        const manifest = await fetch("manifest.json").then(r => r.json());
+        const build = manifest.builds[0];
+
+        log("Requesting serial port...");
+        const port = await navigator.serial.requestPort();
+
+        const loader = new ESPLoader(port, { log });
+
+        log("Connecting...");
+        await loader.connect();
+
+        log("Connected. Flashing parts...");
+        for (const part of build.parts) {
+            log(`Flashing ${part.path} @ 0x${part.offset.toString(16)}`);
+            const data = await fetch(part.path).then(r => r.arrayBuffer());
+            await loader.flashData(new Uint8Array(data), part.offset);
+        }
+
+        log("Rebooting...");
+        await loader.disconnect();
+        log("Complete.");
+    } catch (err) {
+        log("ERROR: " + err);
+    }
+}
+
+document.getElementById("flashBtn").addEventListener("click", flash);
+</script>
 
 </body>
 </html>
