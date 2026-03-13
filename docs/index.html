@@ -41,8 +41,7 @@
 
 <div id="log"></div>
 
-<!-- IMPORTANT: Use the UMD bundle that exposes window.ESPLoader -->
-<script src="https://unpkg.com/esptool-js@0.4.4/bundle.js"></script>
+<script src="https://unpkg.com/esptool-js@0.3.0/bundle.js"></script>
 
 <script>
 async function flash() {
@@ -77,8 +76,6 @@ async function flash() {
         log("ERROR: " + err);
     }
 }
-
-document.getElementById("flashBtn").addEventListener("click", flash);
 </script>
 
 </body>
