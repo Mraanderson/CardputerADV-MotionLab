@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Motion Lab Web Flasher</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
     body {
         background: #000;
@@ -40,13 +41,13 @@
 
 <div id="log"></div>
 
-<script type="module">
-import ESPLoader from "https://unpkg.com/esptool-js@0.5.4/bundle.js";
+<!-- Classic script load (works on GitHub Pages) -->
+<script src="https://unpkg.com/esptool-js@0.5.4/bundle.js"></script>
 
+<script>
 async function flash() {
-    const log = msg => {
-        document.getElementById("log").textContent += msg + "\n";
-    };
+    const logBox = document.getElementById("log");
+    const log = msg => logBox.textContent += msg + "\n";
 
     try {
         log("Loading manifest...");
@@ -72,7 +73,7 @@ async function flash() {
         await loader.disconnect();
         log("Complete.");
     } catch (err) {
-        document.getElementById("log").textContent += "ERROR: " + err + "\n";
+        log("ERROR: " + err);
     }
 }
 
