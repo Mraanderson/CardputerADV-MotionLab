@@ -41,7 +41,7 @@
 
 <div id="log"></div>
 
-<!-- Classic script load (works on GitHub Pages) -->
+<!-- This version exposes window.esptoolJS -->
 <script src="https://unpkg.com/esptool-js@0.5.4/bundle.js"></script>
 
 <script>
@@ -57,7 +57,8 @@ async function flash() {
         log("Requesting serial port...");
         const port = await navigator.serial.requestPort();
 
-        const loader = new ESPLoader(port, { log });
+        // FIX: use esptoolJS.ESPLoader
+        const loader = new esptoolJS.ESPLoader(port, { log });
 
         log("Connecting...");
         await loader.connect();
