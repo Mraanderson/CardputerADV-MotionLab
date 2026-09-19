@@ -88,7 +88,8 @@ or
 
 Or
 
-flash the .bin file from releases - Web flasher coming soon...
+flash the .bin file from releases
+- Web flasher coming soon...https://mraanderson.github.io/CardputerADV-MotionLab/
 
 ---
 
