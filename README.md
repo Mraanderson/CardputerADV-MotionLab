@@ -1,11 +1,22 @@
 # Cardputer‑ADV Motion Lab
 
-An interactive IMU‑driven demo suite for the **M5Stack Cardputer‑ADV**, showcasing real‑time motion graphics, tilt‑based controls, and diagnostic tools.  
-This project is designed as a hands‑on playground for exploring the Cardputer‑ADV’s accelerometer and gyroscope.
+An interactive IMU‑driven demo suite for the **M5Stack Cardputer** IMU sensor, showcasing real‑time motion graphics, tilt‑based controls, and diagnostic tools.  
+This project is designed as a hands‑on playground for exploring the Cardputer‑ADV’s built in accelerometer and gyroscope or with the Cardputer 1.1 and addon.
 
 ---
 
 ## Features
+
+## Modes Overview
+
+| Mode   | Description                        |
+|--------|------------------------------------|
+| Cube   | IMU‑rotated 3D cube + live zoom    |
+| Level  | Bubble level                       |
+| Game   | Tilt‑controlled mini‑game          |
+| G-Force  | G-Force measure and peak test         |
+| Graph  | Scrolling IMU oscilloscope         |
+| Raw    | Raw IMU + orientation values       |
 
 ### 3D Cube (IMU‑Driven, Live Zoom)
 - Real‑time pitch/roll rotation from accelerometer  
@@ -40,9 +51,7 @@ This project is designed as a hands‑on playground for exploring the Cardputer�
 - Computed pitch and roll  
 - Compact text layout for the ADV’s 135px height  
 
-### Unified Exit Controls
-All demos can be exited using: 
-- **Del**
+---
 
 ![Screen Image](https://github.com/Mraanderson/CardputerADV-MotionLab/blob/main/docs/gforce.png)
 
@@ -61,11 +70,13 @@ All demos can be exited using:
 
 ## Requirements
 
-- M5Stack **Cardputer‑ADV** or Cardputer+IMU addon via Grove port
+- M5Stack **Cardputer‑ADV**
+or
+- Cardputer 1.1 + IMU addon via Grove port
 
 ---
 
-## Getting Started
+## Getting Started with a self compile
 
 1. Install Visual Code Studio and the PlatformIO extension
 2. Create a new PlatformIO project
@@ -75,20 +86,9 @@ All demos can be exited using:
 6. Hold down **Go** and reset to put into flashing mode
 7. Upload and optionally Build, to use your own firmware.bin file
 
-Or flash the .bin file from releases - Web flasher coming soon...
+Or
 
----
-
-## Modes Overview
-
-| Mode   | Description                        |
-|--------|------------------------------------|
-| Cube   | IMU‑rotated 3D cube + live zoom    |
-| Level  | Bubble level                       |
-| Game   | Tilt‑controlled mini‑game          |
-| G-Force  | G-Force measure and peak test         |
-| Graph  | Scrolling IMU oscilloscope         |
-| Raw    | Raw IMU + orientation values       |
+flash the .bin file from releases - Web flasher coming soon...
 
 ---
 
